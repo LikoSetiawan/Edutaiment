@@ -20,16 +20,17 @@ struct ContentView: View {
     @State private var selectQuestion = 10
     
     @State private var questionSet = [Question]()
-    
+    @State private var currentQuestionIndex = 0
     
     @State private var showQuestion = false
     @State private var userAnswer = ""
-    @State private var currentQuestionIndex = 0
     
     @State private var alertTitle = ""
     @State private var alertMssg = ""
     @State private var showAlert = false
     
+    @State private var totalCorrectAnswer = 0
+    @State private var gameFinished = false
     
     var body: some View {
         NavigationStack{
@@ -55,7 +56,7 @@ struct ContentView: View {
                         showQuestion.toggle()
                     }
                 }, label: {
-                    Text("Start!")
+                    Text(showQuestion ? "Exit!" : "Start!")
                         .foregroundStyle(showQuestion ? .red : .black)
                     
                     
@@ -84,7 +85,9 @@ struct ContentView: View {
                             .padding()
                         
                     }
-                    
+                    if gameFinished {
+                        summaryView
+                    }
                     
                     Spacer()
                     
@@ -125,6 +128,7 @@ struct ContentView: View {
         
         if userAnswers == correctAnswer {
                 alert(title: "Correct", message: "Go to the next question")
+                totalCorrectAnswer += 1
             } else {
                 alert(title: "Wrong", message: "The correct answer is \(correctAnswer)")
             }
@@ -133,15 +137,39 @@ struct ContentView: View {
             currentQuestionIndex += 1
             userAnswer = ""
         } else {
-            // You've reached the end of questions
-            // Do something, like show a summary or reset the quiz
+           gameFinished = true
         }
     }
+    
+    var summaryView: some View {
+           VStack {
+               Text("Game Over!")
+                   .font(.title)
+                   .padding()
+               
+               Text("You got \(totalCorrectAnswer) out of \(questionSet.count) correct!")
+                   .padding()
+               
+               Button("Play Again") {
+                   resetGame()
+               }
+               .padding()
+           }
+       }
+    
+    func resetGame() {
+        totalCorrectAnswer = 0
+        gameFinished = false
+        generateQuestion()
+        showQuestion = false
+    }
+    
     
     func alert(title : String, message : String){
         alertTitle = title
         alertMssg = message
         showAlert = true
+        
     }
     
 }
